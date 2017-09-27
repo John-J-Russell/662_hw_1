@@ -72,7 +72,7 @@ check g (CCase e (x1, e1) (x2, e2)) =
     do CTSum t1 t2 <- check g e
        y1 <- check g e1
        y2 <- check g e2
-       if y1 == y2 then Just (CTFun e y2) else Nothing
+       if y1 == y2 then Just (CTFun (CTSum t1 t2) y2) else Nothing
 
 --    error "Type checking for case is not implemented"
 --Just (CTFun CType CType
