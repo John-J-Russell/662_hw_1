@@ -62,11 +62,11 @@ check g (CLetPair x1 x2 e1 e2) =
        check ((x1, t1) : (x2, t2) : g) e2
 check g (CInl t1 t2 e) =
     do x1 <- check g e
-       if t1 == x1 then return Just CTSum t1 t2 else error "Invalid type" 
+       if t1 == x1 then (Just CTSum t1 t2) else Nothing 
 --error "Type checking for Inl not implemented"
 check g (CInr t1 t2 e) =
     do x <- check g e
-       if x == t2 then return Just CTSum t1 t2 else error "invalid type"
+       if x == t2 then (Just CTSum t1 t2) else Nothing
 --    error "Type checking for Inr not implemented"
 check g (CCase e (x1, e1) (x2, e2)) =
     error "Type checking for case is not implemented"
