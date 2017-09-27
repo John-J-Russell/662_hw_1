@@ -40,9 +40,14 @@ desugarTy dtypes (TFun t1 t2) =
        t2' <- desugarTy dtypes t2
        return (CTFun t1' t2')
 
---
+-- Takes a T we produce in the other desugar EDatatype, gives a CSum of
+-- CProducts
+-- k is a couplet, second element has the goods
+-- in each pair in the list, the second element is also a list that needsw to
+-- be parsed into a pair/product thing "CTPair CType CType"
+-- These need to be summed together in "CTSum CType CType"
 desugarTy dtypes (TDatatype k) = --k is constructor ?
-    error "Desugaring for datatype names not implemented"
+    Just(outerProcessing (fromJust(lookup k dtypes)))
 
 desugar :: DtypeEnv -> Expr -> Maybe Core
 desugar _ (EInt i) =
@@ -76,21 +81,52 @@ desugar dtypes (EApp e1 e2) =
        e2' <- desugar dtypes e2
        return (CApp e1' e2')
 desugar dtypes (EDatatype dtname ctors e) = -- name, constructors, body makes and extends environment ctors is a list
-    desugar (dtypes ++ (dtname , (outerListProcess ctors))) e 
+    desugar ( (dtname , (outerListProcess dtypes ctors)) : dtypes) e 
 desugar dtypes (ECon k es) =
-    error "Desugaring for datatype constructors not implemented"
+    Just(outerConsProcessing dtypes dtypes k es)
 desugar dtypes (ECase e bs) = --
     error "Desugaring for cases not implemented"
 
-innerListProcess [x] =
-    desugar x
-innerListProcess (x : xs) =
-    (desugar x) : (innerListProcess xs)
-outerListProcess [(varname, typelist)] =
-    ( varname , innerListProcess typelist)
-outerListProcess ( (varname , typelist) : rest) =
-    ( varname , (innerListProcess typelist) ) : (outerListProcess rest)
+--Turn a list of EInts or similar into pairs of CInts or similar
+fancify dtype [e] =
+    fromJust(desugar dtype e)
+fancify dtype (e:es) =
+    CPair (fromJust(desugar dtype e)) (fancify dtype es)
+injectorBuild dtype [(kname, thetypes)] k es=
+    if (k == kname) 
+       then{- (innerProcessing thetypes)-} (fancify dtype es) 
+       else error "I don't even know"
+injectorBuild dtype ((kname , thetypes ) : rest) k es =
+    if (k == kname) 
+       then CInl (innerProcessing thetypes) (outerProcessing rest) (fancify dtype es) 
+       else CInr (innerProcessing thetypes) (outerProcessing rest) (injectorBuild dtype rest k es)
+outerConsProcessing fulldtype [dtype] k es =
+    if (lookup k (snd dtype)) == Nothing then error "Does not exist" else injectorBuild fulldtype (snd dtype) k es
+outerConsProcessing fulldtype (dtypehead : dtyperest) k es =
+    if (lookup k (snd dtypehead)) == Nothing then outerConsProcessing fulldtype dtyperest k es else injectorBuild fulldtype (snd dtypehead) k es
 
+
+
+--For desugar EDatatype dtname
+innerListProcess dtypes [x] =
+    [fromJust(desugarTy dtypes x)]
+innerListProcess dtypes (x : xs) =
+    fromJust((desugarTy dtypes x)) : (innerListProcess dtypes xs)
+outerListProcess dtypes [(varname, typelist)] =
+    [(varname , innerListProcess dtypes typelist)]
+outerListProcess dtypes ( (varname , typelist) : rest) =
+    ( varname , (innerListProcess dtypes typelist) ) : (outerListProcess dtypes rest)
+
+
+--For desugarTY TDatatypes
+innerProcessing [x] =
+    x
+innerProcessing ( x : xs) =
+    CTPair x (innerProcessing xs)
+outerProcessing [(varname , varlist)] =
+    innerProcessing varlist
+outerProcessing ((varname , varlist) : therest) =
+    CTSum (innerProcessing varlist) (outerProcessing therest)
 --------------------------------------------------------------------------------
 -- Parsing
 --------------------------------------------------------------------------------
