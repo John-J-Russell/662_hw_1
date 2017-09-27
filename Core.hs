@@ -119,9 +119,13 @@ eval h (CPair e1 e2) =
 eval h (CLetPair x1 x2 e1 e2) =
     let VPair v1 v2 = eval h e1 in
     eval ((x1, v1) : (x2, v2) : h) e2
-eval h (CInl _ _ e) =
-    error "Evaluation for Inl not implemented"
+eval h (CInl _ _ e) = --eval e, call eval inl on it?
+    VInl (eval h e)
+--    error "Evaluation for Inl not implemented"
 eval h (CInr _ _ e) =
-    error "Evaluation for Inr not implemented"
+    VInr (eval h e)
 eval h (CCase e (x1, e1) (x2, e2)) =
-    error "Evaluation for case not implemented"
+    case eval h e of VInl y -> (eval ((x1,y):h) e1)
+                     VInr y -> (eval ((x2,y):h) e2)
+
+

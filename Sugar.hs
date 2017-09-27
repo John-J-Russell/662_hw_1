@@ -8,7 +8,7 @@ import Text.Parsec.Language
 import Text.Parsec.Token as T
 
 import Core
-
+import Data.Maybe
 --------------------------------------------------------------------------------
 -- Sugared syntax
 --------------------------------------------------------------------------------
@@ -39,7 +39,9 @@ desugarTy dtypes (TFun t1 t2) =
     do t1' <- desugarTy dtypes t1
        t2' <- desugarTy dtypes t2
        return (CTFun t1' t2')
-desugarTy dtypes (TDatatype k) =
+
+--
+desugarTy dtypes (TDatatype k) = --k is constructor ?
     error "Desugaring for datatype names not implemented"
 
 desugar :: DtypeEnv -> Expr -> Maybe Core
@@ -73,12 +75,21 @@ desugar dtypes (EApp e1 e2) =
     do e1' <- desugar dtypes e1
        e2' <- desugar dtypes e2
        return (CApp e1' e2')
-desugar dtypes (EDatatype dtname ctors e) =
-    error "Desugaring for datatype declarations not implemented"
+desugar dtypes (EDatatype dtname ctors e) = -- name, constructors, body makes and extends environment ctors is a list
+    desugar (dtypes ++ (dtname , (outerListProcess ctors))) e 
 desugar dtypes (ECon k es) =
     error "Desugaring for datatype constructors not implemented"
-desugar dtypes (ECase e bs) =
+desugar dtypes (ECase e bs) = --
     error "Desugaring for cases not implemented"
+
+innerListProcess [x] =
+    desugar x
+innerListProcess (x : xs) =
+    (desugar x) : (innerListProcess xs)
+outerListProcess [(varname, typelist)] =
+    ( varname , innerListProcess typelist)
+outerListProcess ( (varname , typelist) : rest) =
+    ( varname , (innerListProcess typelist) ) : (outerListProcess rest)
 
 --------------------------------------------------------------------------------
 -- Parsing
