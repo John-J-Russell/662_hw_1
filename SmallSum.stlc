@@ -1,0 +1,5 @@
+-- VInt 16
+(\x : Int + Int -> case x of
+                     Inl y -> y * y
+                   | Inr y -> y + y)
+(Inl[Int+Int] 4)

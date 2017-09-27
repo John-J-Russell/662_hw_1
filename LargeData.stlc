@@ -1,0 +1,6 @@
+-- VInt 16
+data T1 = K1 Int Bool | K2 Int | K3 Int Int Int in
+case K2 4 of
+  K3 x y z -> x + y + z
+| K2 x -> x * x
+| K1 x y -> if y then 0 else x

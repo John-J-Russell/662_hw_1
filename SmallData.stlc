@@ -1,0 +1,5 @@
+data T1 = K1 Int | K2 Bool in
+(\x : T1 -> case x of
+              K1 x -> x * x
+            | K2 b -> if b then 0 else 1)
+(K2 False)

@@ -1,0 +1,7 @@
+-- VInt 2
+case Inl[(Int + Bool)+Int](Inl[Int+Bool] 1) of
+  Inl w ->
+    case w of
+      Inl z -> z + z
+    | Inr b -> if b then 0 else 1
+| Inr z -> z * z
