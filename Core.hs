@@ -68,9 +68,11 @@ check g (CInr t1 t2 e) =
     do x <- check g e
        if x == t2 then Just (CTSum t1 t2) else Nothing
 --    error "Type checking for Inr not implemented"
-check g (CCase e (x1, e1) (x2, e2))
-    | check g (CInl e x1) /= Nothing = Just (CTFun e (check g e1))
-    | check g (CInr e x2) /= Nothing = Just (CTFun e (check g e2))
+check g (CCase e (x1, e1) (x2, e2)) =
+    do CTSum t1 t2 <- check g e
+       y1 <- check g e1
+       y2 <- check g e2
+       if y1 == y2 then Just (CTFun e y2) else Nothing
 
 --    error "Type checking for case is not implemented"
 --Just (CTFun CType CType
