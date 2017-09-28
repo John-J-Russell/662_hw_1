@@ -1,0 +1,7 @@
+-- VInt 64
+data T1 = K1 Int Bool | K2 Int | K3 Int Int Int | K4 Int Int in
+case K4 4 8 of
+  K3 x y z -> x + y + z
+| K2 x -> x * x
+| K1 x y -> if y then 0 else x
+| K4 x y -> x * y * 2

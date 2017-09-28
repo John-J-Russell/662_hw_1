@@ -1,0 +1,5 @@
+-- VInt 8
+(\x : Int + Bool -> case x of
+                     Inl y -> y * 2
+                   | Inr y -> y + 7)
+(Inl[Int+Bool] 4)

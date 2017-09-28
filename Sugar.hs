@@ -84,8 +84,10 @@ desugar dtypes (EDatatype dtname ctors e) = -- name, constructors, body makes an
     desugar ( (dtname , (outerListProcess dtypes ctors)) : dtypes) e 
 desugar dtypes (ECon k es) =
     Just(outerConsProcessing dtypes dtypes k es)
-desugar dtypes (ECase e bs) = --
-    error "Desugaring for cases not implemented"
+desugar dtypes (ECase e bs) = 
+    CCase (desugar dtypes e) {-desugar left case-} {-desugar right cases-}
+--  (JUST?) CCase Core (Ident, Core) (Ident, Core)
+--    error "Desugaring for cases not implemented"
 
 --e will be variable, and bs are cases
 --bs is of format [(Ident, [Ident], Expr)]

@@ -1,7 +1,7 @@
--- VInt 2
-case Inl[(Int + Bool)+Int](Inl[Int+Bool] 1) of
+-- VBool True (I think?)
+case Inr[(Bool + Int)+Bool](Inl[Bool+Int] True) of
   Inl w ->
     case w of
-      Inl z -> z + z
-    | Inr b -> if b then 0 else 1
-| Inr z -> z * z
+      Inl x -> x && True
+    | Inr y -> y
+| Inr z -> z * 7

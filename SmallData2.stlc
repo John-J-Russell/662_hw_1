@@ -1,0 +1,6 @@
+--49
+data T1 = K1 Int Int | K2 Bool Int in
+(\x : T1 -> case x of
+              K1 x y-> x * y * 2
+            | K2 b x -> if b then x*x  else 2 * x)
+(K2 True 7)
