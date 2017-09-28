@@ -87,6 +87,10 @@ desugar dtypes (ECon k es) =
 desugar dtypes (ECase e bs) = --
     error "Desugaring for cases not implemented"
 
+--e will be variable, and bs are cases
+--bs is of format [(Ident, [Ident], Expr)]
+--Remember: we only need to desugar it, not solve it.
+
 --Turn a list of EInts or similar into pairs of CInts or similar
 fancify dtype [e] =
     fromJust(desugar dtype e)
